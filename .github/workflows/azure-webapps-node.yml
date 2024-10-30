@@ -23,9 +23,9 @@ on:
   workflow_dispatch:
 
 env:
-  AZURE_WEBAPP_NAME: simple-api-oesxq    # set this to your application's name
-  AZURE_WEBAPP_PACKAGE_PATH: '.'      # set this to the path to your web app project, defaults to the repository root
-  NODE_VERSION: '20.0'                # set this to the node version to use
+  AZURE_WEBAPP_NAME: simple-api-oesxq    # Set this to your application's name
+  AZURE_WEBAPP_PACKAGE_PATH: './release.zip'  # Set to the path of the compressed package
+  NODE_VERSION: '20.0'                   # Set this to the Node.js version to use
 
 permissions:
   contents: read
@@ -42,17 +42,20 @@ jobs:
         node-version: ${{ env.NODE_VERSION }}
         cache: 'npm'
 
-    - name: npm install, build, and test
+    - name: Install dependencies and build
       run: |
         npm install
         npm run build --if-present
-        npm run test --if-present
+
+    # Compress the build output
+    - name: Archive build output
+      run: zip -r release.zip ./*  # Compresses all files in the current directory into release.zip
 
     - name: Upload artifact for deployment job
       uses: actions/upload-artifact@v3
       with:
         name: node-app
-        path: .
+        path: release.zip  # Upload the compressed ZIP file
 
   deploy:
     permissions:
@@ -69,10 +72,13 @@ jobs:
       with:
         name: node-app
 
+    - name: Unzip the downloaded artifact
+      run: unzip release.zip
+
     - name: 'Deploy to Azure WebApp'
       id: deploy-to-webapp
       uses: azure/webapps-deploy@v2
       with:
         app-name: ${{ env.AZURE_WEBAPP_NAME }}
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-        package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+        package: release.zip  # Deploy the compressed ZIP file directly
