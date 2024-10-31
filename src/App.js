@@ -1,13 +1,4 @@
 import React from 'react';
-<<<<<<< HEAD
-
-function App() {
-  return (
-    <div style={{ textAlign: 'center' }}>
-      <h1>Welcome to My Simple React App</h1>
-      <p>Deploying React on Azure App Services!</p>
-    </div>
-=======
 import Todo from './Todo';
 import TodoForm from './TodoForm';
 import './styles.css';
@@ -51,7 +42,6 @@ function App() {
       </div>
     </div>
     </>
->>>>>>> other-repo/master
   );
 }
 
